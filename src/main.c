@@ -6,12 +6,12 @@
 
 #include <stdio.h>
 #include <assert.h>
-#include <inttypes.h>
+#include <stdint.h>
 
 #define LINE_SIZE 51
 
 typedef struct{
-    int32_t size;
+    uint32_t size;
     int32_t min;
     int32_t max;
 } Dataset;
