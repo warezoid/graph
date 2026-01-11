@@ -32,6 +32,27 @@ void print_line(char *line){
 }
 
 
+void int_parse(char *line, int32_t *num){
+    int i = 0;
+    while(line[i] != 0 && line[i] != 10){
+        if(line[i] == '-'){
+            printf("NEGATIVE NUMBER!\n");
+            *num = 0;
+            return;
+        }
+
+        if(line[i] >= 48 && line[i] <= 57){
+            *num = *num * 10 + (line[i] - 48);
+            i++;
+        }
+        else{
+            printf("CONTAINS NON NUMBER CHAR!\n");
+            *num = 0;
+            return;
+        }
+    }
+}
+
 
 /* line */
 void null_line(char *line){
@@ -46,7 +67,10 @@ void init_dataset(Dataset *d, FILE *f){
     while(fgets(line, sizeof(line), f)){
         d->size++;
         
-        print_line(line);
+        //print_line(line);
+        int32_t num = 0;
+        int_parse(line, &num);
+        printf("int: %d | num: %s", num, line);
 
         null_line(line);
     }
