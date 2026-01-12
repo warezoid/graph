@@ -5,6 +5,7 @@
 */
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <assert.h>
 #include <stdint.h>
 
@@ -31,26 +32,34 @@ void print_line(char *line){
     printf("\n");
 }
 
+/*
+    int_parse:
+        - get line string and num pointer
+        - convert to int till 0 or 10
+            - if not a number (48 - 57) return exit(1) and print error mesagge
+            - check for minus
+        - set minus
+        - return
+*/
+void int_parse(char *line, int *num){
+    int sign = 1;
 
-void int_parse(char *line, int32_t *num){
-    int i = 0;
-    while(line[i] != 0 && line[i] != 10){
-        if(line[i] == '-'){
-            printf("NEGATIVE NUMBER!\n");
-            *num = 0;
-            return;
+    for(int i = 0; line[i] != 0 && line[i] != '\n'; i++){
+        if(line[i] >= '0' && line[i] <= '9'){
+            *num = (*num * 10) + (line[i] - '0');
+            continue;
         }
 
-        if(line[i] >= 48 && line[i] <= 57){
-            *num = *num * 10 + (line[i] - 48);
-            i++;
+        if(line[i] == '-' && sign == 1){
+            sign = -1;
+            continue;
         }
-        else{
-            printf("CONTAINS NON NUMBER CHAR!\n");
-            *num = 0;
-            return;
-        }
+
+        printf("int_parse() error: contains invalid chars!\n");
+        exit(1);
     }
+
+    *num *= sign;
 }
 
 
@@ -66,11 +75,10 @@ void init_dataset(Dataset *d, FILE *f){
     char line[LINE_SIZE] = {0};
     while(fgets(line, sizeof(line), f)){
         d->size++;
-        
-        //print_line(line);
-        int32_t num = 0;
+
+        int num = 0;
         int_parse(line, &num);
-        printf("int: %d | num: %s", num, line);
+        printf("int: %d\n", num, line);
 
         null_line(line);
     }
@@ -85,8 +93,6 @@ int main(int argc, char **argv){
 
     init_dataset(&d, f);
     print_dataset(d);
-    
-
 
     return 0;
 }
