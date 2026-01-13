@@ -43,6 +43,7 @@ void print_line(char *line){
 */
 void int_parse(char *line, int *num){
     int sign = 1;
+    *num = 0;
 
     for(int i = 0; line[i] != 0 && line[i] != '\n'; i++){
         if(line[i] >= '0' && line[i] <= '9'){
@@ -70,28 +71,42 @@ void null_line(char *line){
     }
 }
 
-/* dataset */
+/* dataset 
+    - get init dataset and file
+    - read till end of file
+        - int_parse() line
+        - increment size
+        - set min and max
+        - clear line
+    - reset file pointer and return
+*/
 void init_dataset(Dataset *d, FILE *f){
+    int num;
     char line[LINE_SIZE] = {0};
+    
     while(fgets(line, sizeof(line), f)){
+        int_parse(line, &num);
+        
         d->size++;
 
-        int num = 0;
-        int_parse(line, &num);
-        printf("int: %d\n", num, line);
-
-        null_line(line);
+        if(num > d->max){
+            d->max = num;
+        }
+        else if(num < d->min){
+            d->min = num;
+        }
     }
+
+    rewind(f);
 }
 
 int main(int argc, char **argv){
     FILE *f = fopen(argv[1], "rt");
     assert(f);
 
-    Dataset d = {.size = 0, .min = INT32_MIN, .max = INT32_MAX};
-    print_dataset(d);
-
+    Dataset d = {.size = 0, .min = INT32_MAX, .max = INT32_MIN};
     init_dataset(&d, f);
+    
     print_dataset(d);
 
     return 0;
