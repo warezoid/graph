@@ -17,6 +17,11 @@ typedef struct{
     int32_t max;
 } Dataset;
 
+typedef struct{
+    const unsigned int width;
+    const unsigned int height;
+} Output;
+
 
 
 /* development zone */
@@ -71,16 +76,22 @@ void null_line(char *line){
     }
 }
 
-/* dataset 
-    - get init dataset and file
-    - read till end of file
-        - int_parse() line
-        - increment size
-        - set min and max
-        - clear line
-    - reset file pointer and return
+/*
+    init_dataset:
+        - get dataset and file
+        - init dataset
+        - read till end of file
+            - int_parse() line
+            - increment size
+            - set min and max
+            - clear line
+        - reset file pointer and return
 */
 void init_dataset(Dataset *d, FILE *f){
+    d->size = 0;
+    d->min = INT32_MAX;
+    d->max = INT32_MIN;
+
     int num;
     char line[LINE_SIZE] = {0};
     
@@ -100,14 +111,35 @@ void init_dataset(Dataset *d, FILE *f){
     rewind(f);
 }
 
-int main(int argc, char **argv){
-    FILE *f = fopen(argv[1], "rt");
-    assert(f);
+/*
+    gen_grid:
+        - get output file and dataset
+        - create svg chart head
+        - create svg chart grid
+            - x and y axis
+            - x and y labels and its markers
+        - return
+*/
+void gen_grid(Dataset *d, Output *o, FILE *f){
+    fprintf(f, "<svg width=\"%d\" height=\"%d\"></svg>\n", o->width, o->height);
 
-    Dataset d = {.size = 0, .min = INT32_MAX, .max = INT32_MIN};
-    init_dataset(&d, f);
+}
+
+int main(int argc, char **argv){
+    FILE *f_in = fopen(argv[1], "rt");
+    assert(f_in);
+
+    Dataset d;
+    init_dataset(&d, f_in);
     
     print_dataset(d);
+
+    FILE *f_out = fopen("out.svg", "wt");
+    assert(f_out);
+
+    Output o = {.width = 1920, .height = 1080};
+    gen_grid(&d, &o, f_out);
+
 
     return 0;
 }
