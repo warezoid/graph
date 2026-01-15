@@ -18,8 +18,10 @@ typedef struct{
 } Dataset;
 
 typedef struct{
-    const unsigned int width;
-    const unsigned int height;
+    const uint32_t width;
+    const uint32_t height;
+    const uint32_t line_width;
+    const uint32_t padding; 
 } Output;
 
 
@@ -114,15 +116,47 @@ void init_dataset(Dataset *d, FILE *f){
 /*
     gen_grid:
         - get output file and dataset
-        - create svg chart head
         - create svg chart grid
             - x and y axis
             - x and y labels and its markers
         - return
 */
 void gen_grid(Dataset *d, Output *o, FILE *f){
-    fprintf(f, "<svg width=\"%d\" height=\"%d\"></svg>\n", o->width, o->height);
+    fprintf(f, "<svg width=\"%d\" height=\"%d\">\n", o->width, o->height);
 
+    //x axis
+    int x_len = o->width - o->padding * 2;
+    int y_mid = (o->height - o->line_width) / 2;
+    fprintf(
+        f,
+        "\t<line x1=\"%d\" x2=\"%d\" y1=\"%d\" y2=\"%d\" stroke-width=\"%d\" stroke=\"#000\"></line>\n",
+        o->padding,
+        o->padding + x_len,
+        y_mid,
+        y_mid,
+        o->line_width
+    );
+    
+    //y axis
+    int y_len = o->height - o->padding * 2;
+    int x = d->max + d->min;
+
+    fprintf(
+        f,
+        "\t<line x1=\"%d\" x2=\"%d\" y1=\"%d\" y2=\"%d\" stroke-width=\"%d\" stroke=\"#000\"></line>\n",
+        o->padding,
+        o->padding,
+        o->padding,
+        o->padding + y_len,
+        o->line_width
+    );
+    
+    //log
+    print_dataset(*d);
+    printf("mid: %d | xlen: %d | ylen: %d\n", y_mid, x_len, y_len);
+    printf("x: %d\n", x);
+
+    fprintf(f, "</svg>\n");
 }
 
 int main(int argc, char **argv){
@@ -132,12 +166,15 @@ int main(int argc, char **argv){
     Dataset d;
     init_dataset(&d, f_in);
     
-    print_dataset(d);
-
     FILE *f_out = fopen("out.svg", "wt");
     assert(f_out);
 
-    Output o = {.width = 1920, .height = 1080};
+    Output o = {
+        .width = 1920,
+        .height = 1080,
+        .line_width = 8,
+        .padding = 100
+    };
     gen_grid(&d, &o, f_out);
 
 
