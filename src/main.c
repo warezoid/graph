@@ -13,6 +13,7 @@
 
 typedef struct{
     uint32_t size;
+    uint32_t range;
     int32_t min;
     int32_t max;
 } Dataset;
@@ -20,15 +21,15 @@ typedef struct{
 typedef struct{
     const uint32_t width;
     const uint32_t height;
+    const uint32_t padding;
     const uint32_t line_width;
-    const uint32_t padding; 
 } Output;
 
 
 
 /* development zone */
 void print_dataset(Dataset d){
-    printf("size: %d, min: %d, max: %d\n", d.size, d.min, d.max);
+    printf("size: %d, min: %d, max: %d, range: %d\n", d.size, d.min, d.max, d.range);
 }
 
 void print_line(char *line){
@@ -91,25 +92,27 @@ void null_line(char *line){
 */
 void init_dataset(Dataset *d, FILE *f){
     d->size = 0;
+    d->range = 0;
     d->min = INT32_MAX;
     d->max = INT32_MIN;
-
+    
     int num;
     char line[LINE_SIZE] = {0};
     
     while(fgets(line, sizeof(line), f)){
         int_parse(line, &num);
-        
         d->size++;
-
+        
         if(num > d->max){
             d->max = num;
         }
-        else if(num < d->min){
+        
+        if(num < d->min){
             d->min = num;
         }
     }
-
+    
+    d->range = abs(d->min) + abs(d->max);
     rewind(f);
 }
 
@@ -121,40 +124,90 @@ void init_dataset(Dataset *d, FILE *f){
             - x and y labels and its markers
         - return
 */
+typedef struct{
+    uint32_t x1;
+    uint32_t x2;
+    uint32_t y1;
+    uint32_t y2;
+    uint32_t line_width;
+    char color[6];
+} Line;
+
+void gen_line(Line *l, FILE *f){
+    fprintf(
+        f,
+        "\t<line x1=\"%d\" x2=\"%d\" y1=\"%d\" y2=\"%d\" stroke-width=\"%d\" stroke=\"#%s\"></line>\n",
+        l->x1,
+        l->x2,
+        l->y1,
+        l->y2,
+        l->line_width,
+        l->color
+    );
+}
+
 void gen_grid(Dataset *d, Output *o, FILE *f){
     fprintf(f, "<svg width=\"%d\" height=\"%d\">\n", o->width, o->height);
 
-    //x axis
+    //vw
+    /*
     int x_len = o->width - o->padding * 2;
     int y_mid = (o->height - o->line_width) / 2;
+    */
+    int y_len = o->height - o->padding * 2;
+    
+    //line
+    Line y_axis = {
+        .x1 = o->padding,
+        .x2 = o->padding,
+        .y1 = o->padding,
+        .y2 = o->padding + y_len,
+        .line_width = o->line_width,
+        .color = "000000",
+    };
+    
+    //y axis
+    gen_line(&y_axis, f);
+
+/*    
+    //x grid
     fprintf(
         f,
-        "\t<line x1=\"%d\" x2=\"%d\" y1=\"%d\" y2=\"%d\" stroke-width=\"%d\" stroke=\"#000\"></line>\n",
+        "\t<line x1=\"%d\" x2=\"%d\" y1=\"%d\" y2=\"%d\" stroke-width=\"%d\" stroke=\"#%s\"></line>\n",
+        o->padding,
+        o->padding + x_len,
+        o->padding,
+        o->padding,
+        o->line_width,
+        o->color
+    );
+
+    fprintf(
+        f,
+        "\t<line x1=\"%d\" x2=\"%d\" y1=\"%d\" y2=\"%d\" stroke-width=\"%d\" stroke=\"#%s\"></line>\n",
+        o->padding,
+        o->padding + x_len,
+        o->padding + y_len,
+        o->padding + y_len,
+        o->line_width,
+        o->color
+    );
+    //x axis
+    fprintf(
+        f,
+        "\t<line x1=\"%d\" x2=\"%d\" y1=\"%d\" y2=\"%d\" stroke-width=\"%d\" stroke=\"#%s\"></line>\n",
         o->padding,
         o->padding + x_len,
         y_mid,
         y_mid,
-        o->line_width
+        o->line_width,
+        o->color
     );
-    
-    //y axis
-    int y_len = o->height - o->padding * 2;
-    int x = d->max + d->min;
+*/
 
-    fprintf(
-        f,
-        "\t<line x1=\"%d\" x2=\"%d\" y1=\"%d\" y2=\"%d\" stroke-width=\"%d\" stroke=\"#000\"></line>\n",
-        o->padding,
-        o->padding,
-        o->padding,
-        o->padding + y_len,
-        o->line_width
-    );
-    
     //log
     print_dataset(*d);
-    printf("mid: %d | xlen: %d | ylen: %d\n", y_mid, x_len, y_len);
-    printf("x: %d\n", x);
+    //printf("mid: %d | xlen: %d | ylen: %d\n", y_mid, x_len, y_len);
 
     fprintf(f, "</svg>\n");
 }
@@ -172,11 +225,10 @@ int main(int argc, char **argv){
     Output o = {
         .width = 1920,
         .height = 1080,
+        .padding = 100,
         .line_width = 8,
-        .padding = 100
     };
     gen_grid(&d, &o, f_out);
-
 
     return 0;
 }
