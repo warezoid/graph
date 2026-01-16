@@ -23,6 +23,7 @@ typedef struct{
     const uint32_t height;
     const uint32_t padding;
     const uint32_t line_width;
+    uint8_t chart_type;
 } Output;
 
 
@@ -88,6 +89,7 @@ void null_line(char *line){
             - increment size
             - set min and max
             - clear line
+        - set range
         - reset file pointer and return
 */
 void init_dataset(Dataset *d, FILE *f){
@@ -95,7 +97,7 @@ void init_dataset(Dataset *d, FILE *f){
     d->range = 0;
     d->min = INT32_MAX;
     d->max = INT32_MIN;
-    
+
     int num;
     char line[LINE_SIZE] = {0};
     
@@ -111,7 +113,7 @@ void init_dataset(Dataset *d, FILE *f){
             d->min = num;
         }
     }
-    
+
     d->range = abs(d->min) + abs(d->max);
     rewind(f);
 }
@@ -130,19 +132,17 @@ typedef struct{
     uint32_t y1;
     uint32_t y2;
     uint32_t line_width;
-    char color[6];
 } Line;
 
 void gen_line(Line *l, FILE *f){
     fprintf(
         f,
-        "\t<line x1=\"%d\" x2=\"%d\" y1=\"%d\" y2=\"%d\" stroke-width=\"%d\" stroke=\"#%s\"></line>\n",
+        "\t<line x1=\"%d\" x2=\"%d\" y1=\"%d\" y2=\"%d\" stroke-width=\"%d\" stroke=\"#000000\"></line>\n",
         l->x1,
         l->x2,
         l->y1,
         l->y2,
-        l->line_width,
-        l->color
+        l->line_width
     );
 }
 
@@ -151,11 +151,17 @@ void gen_grid(Dataset *d, Output *o, FILE *f){
 
     //vw
     /*
-    int x_len = o->width - o->padding * 2;
     int y_mid = (o->height - o->line_width) / 2;
     */
+    int x_len = o->width - o->padding * 2;
     int y_len = o->height - o->padding * 2;
     
+
+    double f2 = (double)abs(d->min) / (double)d->range;
+    double f1 = (double)abs(d->max) / (double)d->range;
+    double f3 = f1 + f2;
+    printf("f1: %f| f2: %f| f1+f2: =%f\n", f1, f2, f3);
+
     //line
     Line y_axis = {
         .x1 = o->padding,
@@ -163,11 +169,26 @@ void gen_grid(Dataset *d, Output *o, FILE *f){
         .y1 = o->padding,
         .y2 = o->padding + y_len,
         .line_width = o->line_width,
-        .color = "000000",
     };
-    
-    //y axis
+
+    Line max_axis = {
+        .x1 = o->padding,
+        .x2 = o->padding + x_len,
+        .y1 = o->padding,
+        .y2 = o->padding,
+        .line_width = o->line_width / 2,
+    };
+    Line min_axis = {
+        .x1 = o->padding,
+        .x2 = o->padding + x_len,
+        .y1 = o->padding + y_len,
+        .y2 = o->padding + y_len,
+        .line_width = o->line_width / 2,
+    };
+
     gen_line(&y_axis, f);
+    gen_line(&max_axis, f);
+    gen_line(&min_axis, f);
 
 /*    
     //x grid
@@ -212,6 +233,30 @@ void gen_grid(Dataset *d, Output *o, FILE *f){
     fprintf(f, "</svg>\n");
 }
 
+void get_chartType(Dataset *d, Output *o){
+    if(d->min > 0 && d->max > 0){
+        if(d->min == d->max){
+            o->chart_type = 10;  //halfway chart (+) -> constant
+            return;
+        }
+
+        o->chart_type = 20;  //halfway chart (+) -> normal (rising)
+        return;
+    }
+
+    if(d->min < 0 && d->max < 0){
+        if(d->min == d->max){
+            o->chart_type = 30;  //halfway chart (-) -> constant
+            return;
+        }
+
+        o->chart_type = 40;  //halfway chart (-) -> falling (rising)
+        return;
+    }
+
+    //full graph (+-)
+}
+
 int main(int argc, char **argv){
     FILE *f_in = fopen(argv[1], "rt");
     assert(f_in);
@@ -227,7 +272,10 @@ int main(int argc, char **argv){
         .height = 1080,
         .padding = 100,
         .line_width = 8,
+        .chart_type = 0,
     };
+    get_chartType(&d, &o);
+
     gen_grid(&d, &o, f_out);
 
     return 0;
