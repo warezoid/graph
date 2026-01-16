@@ -170,25 +170,60 @@ void gen_grid(Dataset *d, Output *o, FILE *f){
         .y2 = o->padding + y_len,
         .line_width = o->line_width,
     };
-
-    Line max_axis = {
-        .x1 = o->padding,
-        .x2 = o->padding + x_len,
-        .y1 = o->padding,
-        .y2 = o->padding,
-        .line_width = o->line_width / 2,
-    };
-    Line min_axis = {
-        .x1 = o->padding,
-        .x2 = o->padding + x_len,
-        .y1 = o->padding + y_len,
-        .y2 = o->padding + y_len,
-        .line_width = o->line_width / 2,
-    };
-
     gen_line(&y_axis, f);
-    gen_line(&max_axis, f);
-    gen_line(&min_axis, f);
+
+    Line x_min = {
+        .x1 = o->padding,
+        .x2 = o->padding + x_len,
+        .y1 = 0,
+        .y2 = 0,
+        .line_width = o->line_width / 2,
+    };
+    Line x_max = {
+        .x1 = o->padding,
+        .x2 = o->padding + x_len,
+        .y1 = 0,
+        .y2 = 0,
+        .line_width = o->line_width / 2,
+    };
+    Line x_origin = {
+        .x1 = o->padding,
+        .x2 = o->padding + x_len,
+        .y1 = 0,
+        .y2 = 0,
+        .line_width = o->line_width,
+    };
+    
+    switch(o->chart_type){
+        case 0:
+            x_min.y1 = o->padding + y_len;
+            x_min.y2 = x_min.y1;
+            x_max.y1 = o->padding;
+            x_max.y2 = x_max.y1;
+            //x_origin.y1, x_origin.y1 = ...; 
+            gen_line(&x_min, f);
+            gen_line(&x_max, f);
+            break;
+        case 10:
+        case 20:
+            x_origin.y1 = o->padding + y_len;
+            x_origin.y2 = x_origin.y1;
+            x_max.y1 = o->padding;
+            x_max.y2 = x_max.y1;
+            gen_line(&x_max, f);
+            break;
+        case 30:
+        case 40:
+            x_origin.y1 = o->padding;
+            x_origin.y2 = x_origin.y1;
+            x_min.y1 = o->padding + y_len;
+            x_min.y2 = x_min.y1;
+            gen_line(&x_min, f);
+            break;
+    }
+    gen_line(&x_origin, f);
+
+
 
 /*    
     //x grid
@@ -228,7 +263,7 @@ void gen_grid(Dataset *d, Output *o, FILE *f){
 
     //log
     print_dataset(*d);
-    //printf("mid: %d | xlen: %d | ylen: %d\n", y_mid, x_len, y_len);
+    printf("chartType: %d | xlen: %d | ylen: %d\n", o->chart_type, x_len, y_len);
 
     fprintf(f, "</svg>\n");
 }
