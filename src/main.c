@@ -14,6 +14,7 @@
 typedef struct{
     uint32_t size;
     uint32_t range;
+    uint32_t hoe;
     int32_t min;
     int32_t max;
 } Dataset;
@@ -30,7 +31,7 @@ typedef struct{
 
 /* development zone */
 void print_dataset(Dataset d){
-    printf("size: %d, min: %d, max: %d, range: %d\n", d.size, d.min, d.max, d.range);
+    printf("size: %d, min: %d, max: %d, range: %d | hoe: %d\n", d.size, d.min, d.max, d.range, d.hoe);
 }
 
 void print_line(char *line){
@@ -89,7 +90,7 @@ void null_line(char *line){
             - increment size
             - set min and max
             - clear line
-        - set range
+        - set range and hoe
         - reset file pointer and return
 */
 void init_dataset(Dataset *d, FILE *f){
@@ -114,7 +115,10 @@ void init_dataset(Dataset *d, FILE *f){
         }
     }
 
-    d->range = abs(d->min) + abs(d->max);
+    uint32_t min_abs = abs(d->min);
+    uint32_t max_abs = abs(d->max);
+    d->range = min_abs + max_abs;
+    (max_abs >= min_abs) ? (d->hoe = max_abs) : (d->hoe = min_abs);
     rewind(f);
 }
 
@@ -146,6 +150,13 @@ void gen_line(Line *l, FILE *f){
     );
 }
 
+//hoe = highest order element
+void get_order(int *order, int32_t *hoe){
+    while(*hoe % *order != *hoe){
+        *order *= 10;
+    }
+}
+
 void gen_grid(Dataset *d, Output *o, FILE *f){
     fprintf(f, "<svg width=\"%d\" height=\"%d\">\n", o->width, o->height);
 
@@ -156,12 +167,6 @@ void gen_grid(Dataset *d, Output *o, FILE *f){
     int x_len = o->width - o->padding * 2;
     int y_len = o->height - o->padding * 2;
     
-
-    double f2 = (double)abs(d->min) / (double)d->range;
-    double f1 = (double)abs(d->max) / (double)d->range;
-    double f3 = f1 + f2;
-    printf("f1: %f| f2: %f| f1+f2: =%f\n", f1, f2, f3);
-
     //line
     Line y_axis = {
         .x1 = o->padding,
@@ -224,45 +229,18 @@ void gen_grid(Dataset *d, Output *o, FILE *f){
     gen_line(&x_origin, f);
 
 
-
-/*    
-    //x grid
-    fprintf(
-        f,
-        "\t<line x1=\"%d\" x2=\"%d\" y1=\"%d\" y2=\"%d\" stroke-width=\"%d\" stroke=\"#%s\"></line>\n",
-        o->padding,
-        o->padding + x_len,
-        o->padding,
-        o->padding,
-        o->line_width,
-        o->color
-    );
-
-    fprintf(
-        f,
-        "\t<line x1=\"%d\" x2=\"%d\" y1=\"%d\" y2=\"%d\" stroke-width=\"%d\" stroke=\"#%s\"></line>\n",
-        o->padding,
-        o->padding + x_len,
-        o->padding + y_len,
-        o->padding + y_len,
-        o->line_width,
-        o->color
-    );
-    //x axis
-    fprintf(
-        f,
-        "\t<line x1=\"%d\" x2=\"%d\" y1=\"%d\" y2=\"%d\" stroke-width=\"%d\" stroke=\"#%s\"></line>\n",
-        o->padding,
-        o->padding + x_len,
-        y_mid,
-        y_mid,
-        o->line_width,
-        o->color
-    );
-*/
+    uint32_t order = 10;
+    get_order(&order, &(d->hoe));
+        
+    int new_max = d->max;
+    const int x = 10;
+    while(new_max % x != 0){
+        new_max++;
+    }
 
     //log
     print_dataset(*d);
+    printf("newmax: %d | step: %d | order: %d\n", new_max, new_max / x, order);
     printf("chartType: %d | xlen: %d | ylen: %d\n", o->chart_type, x_len, y_len);
 
     fprintf(f, "</svg>\n");
