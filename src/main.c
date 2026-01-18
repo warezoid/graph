@@ -155,6 +155,12 @@ void get_order(int *order, int32_t *hoe){
     while(*hoe % *order != *hoe){
         *order *= 10;
     }
+
+    *order /= 10;
+}
+
+void get_anchor_val(int *anchor_val, int *order){
+    *anchor_val += (*order / 10) - (*anchor_val % (*order / 10));
 }
 
 void gen_grid(Dataset *d, Output *o, FILE *f){
@@ -229,18 +235,16 @@ void gen_grid(Dataset *d, Output *o, FILE *f){
     gen_line(&x_origin, f);
 
 
-    uint32_t order = 10;
+    int order = 10;
     get_order(&order, &(d->hoe));
-        
-    int new_max = d->max;
-    const int x = 10;
-    while(new_max % x != 0){
-        new_max++;
-    }
+    
+    int anchor_max = d->hoe;
+    get_anchor_val(&anchor_max, &order);
 
+    const int x = 10;
     //log
     print_dataset(*d);
-    printf("newmax: %d | step: %d | order: %d\n", new_max, new_max / x, order);
+    printf("newmax+: %d | step: %d | order: %d\n", anchor_max, anchor_max / x, order);
     printf("chartType: %d | xlen: %d | ylen: %d\n", o->chart_type, x_len, y_len);
 
     fprintf(f, "</svg>\n");
