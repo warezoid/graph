@@ -202,11 +202,29 @@ void gen_grid(Dataset *d, Output *o, FILE *f){
     fprintf(f, "</svg>\n");
 }
 
+/*
+    - solve the anchor points
+        - never put max and min as anchor points
+        - always keep the same parts of x labels -> must change if range is too small
+        - if is possible (not max && min > 0 || max && min < 0) -> print 0 label
+    - i have to recalc data -> to fit them on y axis
+    - scale data to fit them on x axis
+
+    - ...
+
+*/
 void gen_chart(Dataset *d, Output *o, FILE *f){
-    int val = -60;
+    int val = 100;
     const int full_height = 1000;
 
-    const int range = abs(d->min) + abs(d->max);    //use anchor values (top and bottom x lines)
+    /*
+        - this calc the y-position of point in graph -> also this can calc 0 line
+        - i need to think about standard for anchor points (min and max)
+        - for normal graph (min - | max +) use range = abs(d->min) + abs(d->max)
+            - else use abs(d->max) - abs(d->min) -> + works fine | - works wine also ?? -> CHECK
+        - ...
+    */
+    const int range = abs(d->max) - abs(d->min);    //use anchor values (top and bottom x lines) abs(d->min) + abs(d->max)
     const double a = (abs(d->max) - val) / (double)range;
     const int res = (int)(a * full_height);
 
