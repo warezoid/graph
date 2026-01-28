@@ -159,6 +159,10 @@ void get_order(int *order, int32_t *hoe){
     *order /= 10;
 }
 
+/*
+    - ziskat order nejvetsiho prvku, tim se ridit
+    - 
+*/
 void get_anchor_val(int *anchor_val, int *order){
     while(*anchor_val % *order != 0){
         *anchor_val += 1;
