@@ -14,9 +14,10 @@
 typedef struct{
     uint32_t size;
     uint32_t range;
-    uint32_t hoe;
-    int32_t min;
-    int32_t max;
+    int32_t min;    //can be deleted (mby usecase for some limit functions)
+    int32_t max;    //can be deleted (mby usecase for some limit functions)
+    int32_t min_anchor;
+    int32_t max_anchor;
 } Dataset;
 
 typedef struct{
@@ -31,9 +32,8 @@ typedef struct{
 
 /* development zone */
 void print_dataset(Dataset d){
-    printf("size: %d, min: %d, max: %d, range: %d | hoe: %d\n", d.size, d.min, d.max, d.range, d.hoe);
+    printf("size: %d, min: %d (%d), max: %d (%d), range: %d\n", d.size, d.min, d.min_anchor, d.max, d.max_anchor, d.range);
 }
-
 void print_line(char *line){
     for(int i = 0; i < LINE_SIZE; i++){
         printf("%d ", line[i]);
@@ -41,8 +41,47 @@ void print_line(char *line){
 
     printf("\n");
 }
+void null_line(char *line){
+    for(int i = 0; i < LINE_SIZE; i++){
+        line[i] = 0;
+    }
+}
 
 
+
+int get_order(int32_t num){
+    if(num < 0) num *= -1;
+    
+    int res = 10;
+    while(num % res != num){
+        res *= 10;
+    }
+
+    return (res /= 10);
+}
+
+int get_anchor(int32_t num){
+    int sign = 1;
+    if(num < 0){
+        sign = -1;
+        num *= -1;
+    }
+
+    int ord = get_order(num);   //order
+    int rem = num % ord;    //remaining
+
+    if(rem != 0){
+        int ord_hf = ord >> 1;  //half order
+
+        if(rem < ord_hf) ord = ord_hf;
+
+        while(num % ord != 0) num++;
+        
+        return (num * sign);
+    }
+
+    return ((num + ord) * sign);
+}
 
 /*
     int_parse:
@@ -53,13 +92,13 @@ void print_line(char *line){
         - set minus
         - return
 */
-void int_parse(char *line, int *num){
+int int_parse(char *line){
     int sign = 1;
-    *num = 0;
+    int num = 0;
 
     for(int i = 0; line[i] != 0 && line[i] != '\n'; i++){
         if(line[i] >= '0' && line[i] <= '9'){
-            *num = (*num * 10) + (line[i] - '0');
+            num = (num * 10) + (line[i] - '0');
             continue;
         }
 
@@ -72,14 +111,7 @@ void int_parse(char *line, int *num){
         exit(1);
     }
 
-    *num *= sign;
-}
-
-/* line */
-void null_line(char *line){
-    for(int i = 0; i < LINE_SIZE; i++){
-        line[i] = 0;
-    }
+    num *= sign;
 }
 
 /*
@@ -99,12 +131,14 @@ void init_dataset(Dataset *d, FILE *f){
     d->range = 0;
     d->min = INT32_MAX;
     d->max = INT32_MIN;
+    d->min_anchor = INT32_MAX;
+    d->max_anchor = INT32_MIN;
 
-    int num;
+    int num = 0;
     char line[LINE_SIZE] = {0};
     
     while(fgets(line, sizeof(line), f)){
-        int_parse(line, &num);
+        num = int_parse(line);
         d->size++;
         
         if(num > d->max){
@@ -116,10 +150,9 @@ void init_dataset(Dataset *d, FILE *f){
         }
     }
 
-    uint32_t min_abs = abs(d->min);
-    uint32_t max_abs = abs(d->max);
-    d->range = min_abs + max_abs;
-    (max_abs >= min_abs) ? (d->hoe = max_abs) : (d->hoe = min_abs);
+    d->min_anchor = get_anchor(d->min);
+    d->max_anchor = get_anchor(d->max);
+    d->range = abs(d->min_anchor) + abs(d->max_anchor);
     rewind(f);
 }
 
@@ -150,44 +183,6 @@ void gen_line(Line *l, FILE *f){
         l->line_width
     );
 }
-
-
-
-int get_order(int num){
-    if(num < 0) num *= -1;
-    
-    int res = 10;
-    while(num % res != num){
-        res *= 10;
-    }
-
-    return (res /= 10);
-}
-
-int get_anchor(int num){
-    int sign = 1;
-    if(num < 0){
-        sign = -1;
-        num *= -1;
-    }
-
-    int ord = get_order(num);   //order
-    int rem = num % ord;    //remaining
-
-    if(rem != 0){
-        int ord_hf = ord >> 1;  //half order
-
-        if(rem < ord_hf) ord = ord_hf;
-
-        while(num % ord != 0) num++;
-        
-        return (num * sign);
-    }
-
-    return ((num + ord) * sign);
-}
-
-
 
 void gen_grid(Dataset *d, Output *o, FILE *f){
     fprintf(f, "<svg width=\"%d\" height=\"%d\">\n", o->width, o->height);
@@ -256,7 +251,9 @@ int main(int argc, char **argv){
 
     Dataset d;
     init_dataset(&d, f_in);
-    
+    print_dataset(d);
+
+/*
     FILE *f_out = fopen("out.svg", "wt");
     assert(f_out);
 
@@ -271,7 +268,7 @@ int main(int argc, char **argv){
     gen_grid(&d, &o, f_out);
 
     gen_chart(&d, &o, f_in);
-
+*/
     return 0;
 }
 
