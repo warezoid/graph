@@ -42,6 +42,8 @@ void print_line(char *line){
     printf("\n");
 }
 
+
+
 /*
     int_parse:
         - get line string and num pointer
@@ -72,7 +74,6 @@ void int_parse(char *line, int *num){
 
     *num *= sign;
 }
-
 
 /* line */
 void null_line(char *line){
@@ -150,32 +151,48 @@ void gen_line(Line *l, FILE *f){
     );
 }
 
-//hoe = highest order element
-void get_order(int *order, int32_t *hoe){
-    while(*hoe % *order != *hoe){
-        *order *= 10;
+
+
+int get_order(int num){
+    if(num < 0) num *= -1;
+    
+    int res = 10;
+    while(num % res != num){
+        res *= 10;
     }
 
-    *order /= 10;
+    return (res /= 10);
 }
 
-/*
-    - ziskat order nejvetsiho prvku, tim se ridit
-    - 
-*/
-void get_anchor_val(int *anchor_val, int *order){
-    while(*anchor_val % *order != 0){
-        *anchor_val += 1;
+int get_anchor(int num){
+    int sign = 1;
+    if(num < 0){
+        sign = -1;
+        num *= -1;
     }
+
+    int ord = get_order(num);   //order
+    int rem = num % ord;    //remaining
+
+    if(rem != 0){
+        int ord_hf = ord >> 1;  //half order
+
+        if(rem < ord_hf) ord = ord_hf;
+
+        while(num % ord != 0) num++;
+        
+        return (num * sign);
+    }
+
+    return ((num + ord) * sign);
 }
+
+
 
 void gen_grid(Dataset *d, Output *o, FILE *f){
     fprintf(f, "<svg width=\"%d\" height=\"%d\">\n", o->width, o->height);
 
     //vw
-    /*
-    int y_mid = (o->height - o->line_width) / 2;
-    */
     int x_len = o->width - o->padding * 2;
     int y_len = o->height - o->padding * 2;
     
@@ -189,19 +206,8 @@ void gen_grid(Dataset *d, Output *o, FILE *f){
     };
     gen_line(&y_axis, f);
 
-
-
-    int order = 10;
-    get_order(&order, &(d->hoe));
-    
-    int anchor_max = d->hoe;
-    get_anchor_val(&anchor_max, &order);
-
-    const int x = 10;
     //log
     print_dataset(*d);
-    printf("newmax+: %d | step: %d | order: %d\n", anchor_max, anchor_max / x, order);
-    printf("xlen: %d | ylen: %d\n", x_len, y_len);
 
     fprintf(f, "</svg>\n");
 }
@@ -215,6 +221,14 @@ void gen_grid(Dataset *d, Output *o, FILE *f){
     - scale data to fit them on x axis
 
     - ...
+
+*/
+/*
+
+dataset structure:
+    - max max element of input data
+    - min: min element of input data
+    - range: abs(max) + abs(min)
 
 */
 void gen_chart(Dataset *d, Output *o, FILE *f){
