@@ -219,6 +219,24 @@ void gen_y_grid(Output *o){
     gen_line(&y_axis, o->output_file);
 }
 
+void gen_x_grid(Dataset *d, Output *o){
+    Line x_axis = {
+        .x1 = o->padding,
+        .x2 = o->padding + o->x_axis_len,
+        .y1 = 0,
+        .y2 = 0,
+        .line_width = o->line_width / 2,
+    };
+
+    int spc = (o->y_axis_len + o->padding) / o->y_label_count;
+    for(int i = 0; i < o->y_label_count; i++){
+        x_axis.y1 = o->padding + (spc * i);
+        x_axis.y2 = x_axis.y1;
+        gen_line(&x_axis, o->output_file);
+    }
+}
+
+
 /*
     - solve the anchor points
         - never put max and min as anchor points
@@ -231,6 +249,8 @@ void gen_chart(Dataset *d, Output *o){
     fprintf(o->output_file, "<svg width=\"%d\" height=\"%d\">\n", o->width, o->height);
 
     gen_y_grid(o);
+
+    gen_x_grid(d, o);
 
     /*
         - this calc the y-position of point in graph -> also this can calc 0 line
