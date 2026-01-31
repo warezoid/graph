@@ -21,11 +21,16 @@ typedef struct{
 } Dataset;
 
 typedef struct{
+    FILE *input_file;
+    FILE *output_file;
     const uint32_t width;
     const uint32_t height;
     const uint32_t padding;
     const uint32_t line_width;
-    uint8_t x_label;
+    const uint32_t x_axis_len;
+    const uint32_t y_axis_len;
+    const uint8_t x_label_count;
+    const uint8_t y_label_count;
 } Output;
 
 
@@ -111,7 +116,7 @@ int int_parse(char *line){
         exit(1);
     }
 
-    num *= sign;
+    return num * sign;
 }
 
 /*
@@ -184,14 +189,11 @@ void gen_line(Line *l, FILE *f){
     );
 }
 
+/*
 void gen_grid(Dataset *d, Output *o, FILE *f){
-    fprintf(f, "<svg width=\"%d\" height=\"%d\">\n", o->width, o->height);
-
-    //vw
-    int x_len = o->width - o->padding * 2;
-    int y_len = o->height - o->padding * 2;
-    
     //line
+    int x_len = o->width - o->padding * 2;
+
     Line y_axis = {
         .x1 = o->padding,
         .x2 = o->padding,
@@ -203,8 +205,18 @@ void gen_grid(Dataset *d, Output *o, FILE *f){
 
     //log
     print_dataset(*d);
+}
+*/
 
-    fprintf(f, "</svg>\n");
+void gen_y_grid(Output *o){
+    Line y_axis = {
+        .x1 = o->padding,
+        .x2 = o->padding,
+        .y1 = o->padding,
+        .y2 = o->padding + o->y_axis_len,
+        .line_width = o->line_width,
+    };
+    gen_line(&y_axis, o->output_file);
 }
 
 /*
@@ -214,21 +226,11 @@ void gen_grid(Dataset *d, Output *o, FILE *f){
         - if is possible (not max && min > 0 || max && min < 0) -> print 0 label
     - i have to recalc data -> to fit them on y axis
     - scale data to fit them on x axis
-
-    - ...
-
 */
-/*
+void gen_chart(Dataset *d, Output *o){
+    fprintf(o->output_file, "<svg width=\"%d\" height=\"%d\">\n", o->width, o->height);
 
-dataset structure:
-    - max max element of input data
-    - min: min element of input data
-    - range: abs(max) + abs(min)
-
-*/
-void gen_chart(Dataset *d, Output *o, FILE *f){
-    int val = 100;
-    const int full_height = 1000;
+    gen_y_grid(o);
 
     /*
         - this calc the y-position of point in graph -> also this can calc 0 line
@@ -236,39 +238,49 @@ void gen_chart(Dataset *d, Output *o, FILE *f){
         - for normal graph (min - | max +) use range = abs(d->min) + abs(d->max)
             - else use abs(d->max) - abs(d->min) -> + works fine | - works wine also ?? -> CHECK
         - ...
-    */
+
+    int val = 100;
+    const int full_height = 1000;
     const int range = abs(d->max) - abs(d->min);    //use anchor values (top and bottom x lines) abs(d->min) + abs(d->max)
     const double a = (abs(d->max) - val) / (double)range;
     const int res = (int)(a * full_height);
-
     printf("res: %d\n", res);
+    */
+
+    fprintf(o->output_file, "</svg>\n");
 }
 
 
 int main(int argc, char **argv){
+    //open input file
     FILE *f_in = fopen(argv[1], "rt");
     assert(f_in);
 
+    //init dataset
     Dataset d;
     init_dataset(&d, f_in);
-    print_dataset(d);
-
-/*
+    
+    //open output file
     FILE *f_out = fopen("out.svg", "wt");
     assert(f_out);
-
+    
+    //init output
     Output o = {
+        .input_file = f_in,
+        .output_file = f_out,
         .width = 1920,
         .height = 1080,
         .padding = 100,
         .line_width = 8,
-        .x_label = 6,
+        .x_axis_len = o.width - o.padding * 2,
+        .y_axis_len = o.height - o.padding * 2,
+        .x_label_count = 0,
+        .y_label_count = 10,
     };
 
-    gen_grid(&d, &o, f_out);
+    //generate chart
+    gen_chart(&d, &o);
 
-    gen_chart(&d, &o, f_in);
-*/
     return 0;
 }
 
