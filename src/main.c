@@ -180,7 +180,7 @@ typedef struct{
 void gen_line(Line *l, FILE *f){
     fprintf(
         f,
-        "\t<line x1=\"%d\" x2=\"%d\" y1=\"%d\" y2=\"%d\" stroke-width=\"%d\" stroke=\"#000000\"></line>\n",
+        "\t\t<line x1=\"%d\" x2=\"%d\" y1=\"%d\" y2=\"%d\" stroke-width=\"%d\" stroke=\"#000000\"></line>\n",
         l->x1,
         l->x2,
         l->y1,
@@ -209,6 +209,8 @@ void gen_grid(Dataset *d, Output *o, FILE *f){
 */
 
 void gen_y_grid(Output *o){
+    fprintf(o->output_file, "\t<g>\n");
+
     Line y_axis = {
         .x1 = o->padding,
         .x2 = o->padding,
@@ -217,23 +219,30 @@ void gen_y_grid(Output *o){
         .line_width = o->line_width,
     };
     gen_line(&y_axis, o->output_file);
+
+    fprintf(o->output_file, "\t</g>\n");
 }
 
 void gen_x_grid(Dataset *d, Output *o){
+    fprintf(o->output_file, "\n\t<g>\n");
+
     Line x_axis = {
-        .x1 = o->padding,
+        .x1 = o->padding - (o->line_width / 2),
         .x2 = o->padding + o->x_axis_len,
         .y1 = 0,
         .y2 = 0,
         .line_width = o->line_width / 2,
     };
 
-    int spc = (o->y_axis_len + o->padding) / o->y_label_count;
+    double spc = (double)(o->y_axis_len) / (double)(o->y_label_count - 1);
+
     for(int i = 0; i < o->y_label_count; i++){
         x_axis.y1 = o->padding + (spc * i);
         x_axis.y2 = x_axis.y1;
         gen_line(&x_axis, o->output_file);
     }
+
+    fprintf(o->output_file, "\t</g>\n");
 }
 
 
@@ -295,7 +304,7 @@ int main(int argc, char **argv){
         .x_axis_len = o.width - o.padding * 2,
         .y_axis_len = o.height - o.padding * 2,
         .x_label_count = 0,
-        .y_label_count = 10,
+        .y_label_count = 6,
     };
 
     //generate chart

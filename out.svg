@@ -1,13 +1,14 @@
 <svg width="1920" height="1080">
-	<line x1="100" x2="100" y1="100" y2="980" stroke-width="8" stroke="#000000"></line>
-	<line x1="100" x2="1820" y1="100" y2="100" stroke-width="4" stroke="#000000"></line>
-	<line x1="100" x2="1820" y1="198" y2="198" stroke-width="4" stroke="#000000"></line>
-	<line x1="100" x2="1820" y1="296" y2="296" stroke-width="4" stroke="#000000"></line>
-	<line x1="100" x2="1820" y1="394" y2="394" stroke-width="4" stroke="#000000"></line>
-	<line x1="100" x2="1820" y1="492" y2="492" stroke-width="4" stroke="#000000"></line>
-	<line x1="100" x2="1820" y1="590" y2="590" stroke-width="4" stroke="#000000"></line>
-	<line x1="100" x2="1820" y1="688" y2="688" stroke-width="4" stroke="#000000"></line>
-	<line x1="100" x2="1820" y1="786" y2="786" stroke-width="4" stroke="#000000"></line>
-	<line x1="100" x2="1820" y1="884" y2="884" stroke-width="4" stroke="#000000"></line>
-	<line x1="100" x2="1820" y1="982" y2="982" stroke-width="4" stroke="#000000"></line>
+	<g>
+		<line x1="100" x2="100" y1="100" y2="980" stroke-width="8" stroke="#000000"></line>
+	</g>
+
+	<g>
+		<line x1="96" x2="1820" y1="100" y2="100" stroke-width="4" stroke="#000000"></line>
+		<line x1="96" x2="1820" y1="276" y2="276" stroke-width="4" stroke="#000000"></line>
+		<line x1="96" x2="1820" y1="452" y2="452" stroke-width="4" stroke="#000000"></line>
+		<line x1="96" x2="1820" y1="628" y2="628" stroke-width="4" stroke="#000000"></line>
+		<line x1="96" x2="1820" y1="804" y2="804" stroke-width="4" stroke="#000000"></line>
+		<line x1="96" x2="1820" y1="980" y2="980" stroke-width="4" stroke="#000000"></line>
+	</g>
 </svg>
