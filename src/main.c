@@ -246,6 +246,14 @@ void gen_x_grid(Dataset *d, Output *o){
 }
 
 
+
+int scale_value(Dataset *d, Output *o, int val){
+    double tmp = (double)(abs(d->max_anchor) - val) / (double)(d->range);
+    return tmp * (double)(o->y_axis_len) + o->padding;
+}
+
+
+
 /*
     - solve the anchor points
         - never put max and min as anchor points
@@ -267,13 +275,6 @@ void gen_chart(Dataset *d, Output *o){
         - for normal graph (min - | max +) use range = abs(d->min) + abs(d->max)
             - else use abs(d->max) - abs(d->min) -> + works fine | - works wine also ?? -> CHECK
         - ...
-
-    int val = 100;
-    const int full_height = 1000;
-    const int range = abs(d->max) - abs(d->min);    //use anchor values (top and bottom x lines) abs(d->min) + abs(d->max)
-    const double a = (abs(d->max) - val) / (double)range;
-    const int res = (int)(a * full_height);
-    printf("res: %d\n", res);
     */
 
     fprintf(o->output_file, "</svg>\n");
@@ -304,7 +305,7 @@ int main(int argc, char **argv){
         .x_axis_len = o.width - o.padding * 2,
         .y_axis_len = o.height - o.padding * 2,
         .x_label_count = 0,
-        .y_label_count = 6,
+        .y_label_count = 10,
     };
 
     //generate chart

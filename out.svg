@@ -5,10 +5,14 @@
 
 	<g>
 		<line x1="96" x2="1820" y1="100" y2="100" stroke-width="4" stroke="#000000"></line>
-		<line x1="96" x2="1820" y1="276" y2="276" stroke-width="4" stroke="#000000"></line>
-		<line x1="96" x2="1820" y1="452" y2="452" stroke-width="4" stroke="#000000"></line>
-		<line x1="96" x2="1820" y1="628" y2="628" stroke-width="4" stroke="#000000"></line>
-		<line x1="96" x2="1820" y1="804" y2="804" stroke-width="4" stroke="#000000"></line>
+		<line x1="96" x2="1820" y1="197" y2="197" stroke-width="4" stroke="#000000"></line>
+		<line x1="96" x2="1820" y1="295" y2="295" stroke-width="4" stroke="#000000"></line>
+		<line x1="96" x2="1820" y1="393" y2="393" stroke-width="4" stroke="#000000"></line>
+		<line x1="96" x2="1820" y1="491" y2="491" stroke-width="4" stroke="#000000"></line>
+		<line x1="96" x2="1820" y1="588" y2="588" stroke-width="4" stroke="#000000"></line>
+		<line x1="96" x2="1820" y1="686" y2="686" stroke-width="4" stroke="#000000"></line>
+		<line x1="96" x2="1820" y1="784" y2="784" stroke-width="4" stroke="#000000"></line>
+		<line x1="96" x2="1820" y1="882" y2="882" stroke-width="4" stroke="#000000"></line>
 		<line x1="96" x2="1820" y1="980" y2="980" stroke-width="4" stroke="#000000"></line>
 	</g>
 </svg>
