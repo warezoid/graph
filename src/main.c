@@ -177,6 +177,13 @@ typedef struct{
     uint32_t line_width;
 } Line;
 
+typedef struct{
+    uint32_t x;
+    uint32_t y;
+    int32_t value;
+} Label;
+
+
 void gen_line(Line *l, FILE *f){
     fprintf(
         f,
@@ -186,6 +193,16 @@ void gen_line(Line *l, FILE *f){
         l->y1,
         l->y2,
         l->line_width
+    );
+}
+
+void gen_label(Label *l, FILE *f){
+    fprintf(
+        f,
+        "\t\t<text x=\"%d\" y=\"%d\" font-size=\"30\" fill=\"#000000\" font-family=\"Monospace\">%d</text>\n",
+        l->x,
+        l->y,
+        l->value
     );
 }
 
@@ -234,12 +251,23 @@ void gen_x_grid(Dataset *d, Output *o){
         .line_width = o->line_width / 2,
     };
 
-    double spc = (double)(o->y_axis_len) / (double)(o->y_label_count - 1);
+    Label y_label = {
+        .x = 0,
+        .y = 5,
+        .value = 0,
+    };
 
+    double spc = (double)(o->y_axis_len) / (double)(o->y_label_count - 1);
+    double lbl_spc = (double)(d->range) / (double)(o->y_label_count - 1);
+    printf("lbl_spc = %f\n", lbl_spc);
     for(int i = 0; i < o->y_label_count; i++){
         x_axis.y1 = o->padding + (spc * i);
         x_axis.y2 = x_axis.y1;
         gen_line(&x_axis, o->output_file);
+
+        y_label.y = x_axis.y1;
+        y_label.value = d->max_anchor - (lbl_spc * i);
+        gen_label(&y_label, o->output_file);
     }
 
     fprintf(o->output_file, "\t</g>\n");
@@ -268,6 +296,8 @@ void gen_chart(Dataset *d, Output *o){
     gen_y_grid(o);
 
     gen_x_grid(d, o);
+
+    printf("max anch: %d | min anch: %d\n", d->max_anchor, d->min_anchor);
 
     /*
         - this calc the y-position of point in graph -> also this can calc 0 line
@@ -305,7 +335,7 @@ int main(int argc, char **argv){
         .x_axis_len = o.width - o.padding * 2,
         .y_axis_len = o.height - o.padding * 2,
         .x_label_count = 0,
-        .y_label_count = 10,
+        .y_label_count = 4,
     };
 
     //generate chart

@@ -5,14 +5,12 @@
 
 	<g>
 		<line x1="96" x2="1820" y1="100" y2="100" stroke-width="4" stroke="#000000"></line>
-		<line x1="96" x2="1820" y1="197" y2="197" stroke-width="4" stroke="#000000"></line>
-		<line x1="96" x2="1820" y1="295" y2="295" stroke-width="4" stroke="#000000"></line>
+		<text x="0" y="100" font-size="30" fill="#000000" font-family="Monospace">30000</text>
 		<line x1="96" x2="1820" y1="393" y2="393" stroke-width="4" stroke="#000000"></line>
-		<line x1="96" x2="1820" y1="491" y2="491" stroke-width="4" stroke="#000000"></line>
-		<line x1="96" x2="1820" y1="588" y2="588" stroke-width="4" stroke="#000000"></line>
+		<text x="0" y="393" font-size="30" fill="#000000" font-family="Monospace">19816</text>
 		<line x1="96" x2="1820" y1="686" y2="686" stroke-width="4" stroke="#000000"></line>
-		<line x1="96" x2="1820" y1="784" y2="784" stroke-width="4" stroke="#000000"></line>
-		<line x1="96" x2="1820" y1="882" y2="882" stroke-width="4" stroke="#000000"></line>
+		<text x="0" y="686" font-size="30" fill="#000000" font-family="Monospace">9633</text>
 		<line x1="96" x2="1820" y1="980" y2="980" stroke-width="4" stroke="#000000"></line>
+		<text x="0" y="980" font-size="30" fill="#000000" font-family="Monospace">-550</text>
 	</g>
 </svg>
