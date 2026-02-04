@@ -2,10 +2,17 @@
 
 #include <stdlib.h>
 
+//program constants
 #define MAX_INT 2147483647
 #define MIN_INT -2147483648
 
+//string constants
 #define BUF_SIZE 21
+
+//output constants
+#define OUT_WIDTH 1920
+#define OUT_HEIGHT 1080
+#define OUT_PADDING 100
 
 
 
@@ -57,6 +64,16 @@ Props init_props(FILE *f){
     return res;
 }
 
+
+
+void gen_chart(FILE *f){
+    fprintf(f, "<svg width=\"%d\" height=\"%d\">\n", OUT_WIDTH, OUT_WIDTH);
+
+    fprintf(f, "</svg>\n");
+}
+
+
+
 int main(){
     FILE *f_in = fopen("data.txt", "rt");
     if(f_in == NULL) return 1;
@@ -65,7 +82,8 @@ int main(){
     if(f_out == NULL) return 1;
 
     Props p = init_props(f_in);
-    printf("%d %d %d\n", p.size, p.min, p.max);
+
+    gen_chart(f_out);
 
     return 0;
 }
