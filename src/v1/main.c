@@ -66,6 +66,7 @@ Props init_props(FILE *f){
 }
 
 
+
 typedef struct{
     unsigned int x1;
     unsigned int x2;
@@ -82,6 +83,7 @@ void gen_line(LineCords *l, FILE *f){
         OUT_STROKE_WIDTH
     );
 }
+
 void gen_dashed_line(LineCords *l, FILE *f){
     fprintf(f, "\t<line x1=\"%d\" x2=\"%d\" y1=\"%d\" y2=\"%d\" stroke-width=\"%d\" stroke-dasharray=\"20, 20\" stroke=\"#000000\"></line>\n",
         l->x1,
@@ -114,16 +116,41 @@ void gen_grid(FILE *f){
     gen_dashed_line(&lc, f);
 }
 
-void gen_chart(Props *p, FILE *f){
-    fprintf(f, "<svg width=\"%d\" height=\"%d\">\n", OUT_WIDTH, OUT_HEIGHT);
 
-    gen_grid(f);
+void gen_polyline(Props *p, FILE *fi, FILE *fo){
+    //<polyline points="0,0 50,150 100,75 150,50 200,140 250,140"
+    fprintf(fo, "\n\t<polyline\n\t\tpoints=\"\n");
+
+    const double pts_spc = (double)(OUT_WIDTH - OUT_PADDING * 2) / (double)(p->size);
+
+    char buf[BUF_SIZE] = {};
+    int num = 0;
+
+    unsigned int i = 0;
+    while(fgets(buf, sizeof(buf), fi)){
+        num = int_parse(buf);
+        fprintf(fo, "\t\t\t%f,%f\n",
+            OUT_PADDING + i * pts_spc,
+            (double)OUT_HEIGHT / 2.0
+        );
+        i++;
+    }
+
+    fprintf(fo, "\t\t\"\n\t\tstroke-width=\"%d\"\n\t\tstroke=\"#9900ff\"\n\t/>\n",
+        OUT_STROKE_WIDTH
+    );
+}
+
+void gen_chart(Props *p, FILE *fi, FILE *fo){
+    fprintf(fo, "<svg width=\"%d\" height=\"%d\">\n", OUT_WIDTH, OUT_HEIGHT);
+
+    gen_grid(fo);
+
+    gen_polyline(p, fi, fo);
 
 
 
-
-
-    fprintf(f, "</svg>\n");
+    fprintf(fo, "</svg>\n");
 }
 
 
@@ -137,7 +164,7 @@ int main(){
 
     Props p = init_props(f_in);
 
-    gen_chart(&p, f_out);
+    gen_chart(&p, f_in, f_out);
 
     return 0;
 }

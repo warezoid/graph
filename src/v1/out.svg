@@ -2,4 +2,13 @@
 	<line x1="100" x2="100" y1="100" y2="980" stroke-width="8" stroke="#000000"></line>
 	<line x1="96" x2="1820" y1="100" y2="100" stroke-width="8" stroke-dasharray="20, 20" stroke="#000000"></line>
 	<line x1="96" x2="1820" y1="980" y2="980" stroke-width="8" stroke-dasharray="20, 20" stroke="#000000"></line>
+
+	<polyline
+		points="
+			100.000000,540.000000
+			960.000000,540.000000
+		"
+		stroke-width="8"
+		stroke="#9900ff"
+	/>
 </svg>
