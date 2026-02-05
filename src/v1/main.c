@@ -13,6 +13,7 @@
 #define OUT_WIDTH 1920
 #define OUT_HEIGHT 1080
 #define OUT_PADDING 100
+#define OUT_STROKE_WIDTH 8
 
 
 
@@ -65,9 +66,62 @@ Props init_props(FILE *f){
 }
 
 
+typedef struct{
+    unsigned int x1;
+    unsigned int x2;
+    unsigned int y1;
+    unsigned int y2;
+} LineCords;
 
-void gen_chart(FILE *f){
-    fprintf(f, "<svg width=\"%d\" height=\"%d\">\n", OUT_WIDTH, OUT_WIDTH);
+void gen_line(LineCords *l, FILE *f){
+    fprintf(f, "\t<line x1=\"%d\" x2=\"%d\" y1=\"%d\" y2=\"%d\" stroke-width=\"%d\" stroke=\"#000000\"></line>\n",
+        l->x1,
+        l->x2,
+        l->y1,
+        l->y2,
+        OUT_STROKE_WIDTH
+    );
+}
+void gen_dashed_line(LineCords *l, FILE *f){
+    fprintf(f, "\t<line x1=\"%d\" x2=\"%d\" y1=\"%d\" y2=\"%d\" stroke-width=\"%d\" stroke-dasharray=\"20, 20\" stroke=\"#000000\"></line>\n",
+        l->x1,
+        l->x2,
+        l->y1,
+        l->y2,
+        OUT_STROKE_WIDTH
+    );
+}
+
+void gen_grid(FILE *f){
+    //y axis
+    LineCords lc = {
+        .x1 = OUT_PADDING,
+        .x2 = OUT_PADDING,
+        .y1 = OUT_PADDING,
+        .y2 = OUT_HEIGHT - OUT_PADDING
+    };
+    gen_line(&lc, f);
+
+    //max axis
+    lc.x1 = OUT_PADDING - OUT_STROKE_WIDTH / 2;
+    lc.x2 = OUT_WIDTH - OUT_PADDING;
+    lc.y2 = OUT_PADDING;
+    gen_dashed_line(&lc, f);
+
+    //min axis 
+    lc.y1 = OUT_HEIGHT - OUT_PADDING;
+    lc.y2 = lc.y1;
+    gen_dashed_line(&lc, f);
+}
+
+void gen_chart(Props *p, FILE *f){
+    fprintf(f, "<svg width=\"%d\" height=\"%d\">\n", OUT_WIDTH, OUT_HEIGHT);
+
+    gen_grid(f);
+
+
+
+
 
     fprintf(f, "</svg>\n");
 }
@@ -83,7 +137,7 @@ int main(){
 
     Props p = init_props(f_in);
 
-    gen_chart(f_out);
+    gen_chart(&p, f_out);
 
     return 0;
 }
