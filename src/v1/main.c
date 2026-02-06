@@ -116,12 +116,14 @@ void gen_grid(FILE *f){
     gen_dashed_line(&lc, f);
 }
 
-
+/*
+    x axis -> scaling
+    y axis -> ploting
+*/
 void gen_polyline(Props *p, FILE *fi, FILE *fo){
-    //<polyline points="0,0 50,150 100,75 150,50 200,140 250,140"
     fprintf(fo, "\n\t<polyline\n\t\tpoints=\"\n");
 
-    const double pts_spc = (double)(OUT_WIDTH - OUT_PADDING * 2) / (double)(p->size);
+    const double pts_spc = (double)(OUT_WIDTH - OUT_PADDING * 2) / (double)(p->size - 1);
 
     char buf[BUF_SIZE] = {};
     int num = 0;
@@ -129,7 +131,7 @@ void gen_polyline(Props *p, FILE *fi, FILE *fo){
     unsigned int i = 0;
     while(fgets(buf, sizeof(buf), fi)){
         num = int_parse(buf);
-        fprintf(fo, "\t\t\t%f,%f\n",
+        fprintf(fo, "\t\t\t%f, %f\n",
             OUT_PADDING + i * pts_spc,
             (double)OUT_HEIGHT / 2.0
         );
@@ -148,8 +150,6 @@ void gen_chart(Props *p, FILE *fi, FILE *fo){
 
     gen_polyline(p, fi, fo);
 
-
-
     fprintf(fo, "</svg>\n");
 }
 
@@ -159,10 +159,11 @@ int main(){
     FILE *f_in = fopen("data.txt", "rt");
     if(f_in == NULL) return 1;
 
+    Props p = init_props(f_in);
+    if(p.size < 2) return 1;
+
     FILE *f_out = fopen("out.svg", "wt");
     if(f_out == NULL) return 1;
-
-    Props p = init_props(f_in);
 
     gen_chart(&p, f_in, f_out);
 
