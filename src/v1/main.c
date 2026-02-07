@@ -74,13 +74,14 @@ typedef struct{
     unsigned int y2;
 } LineCords;
 
-void gen_line(LineCords *l, FILE *f){
-    fprintf(f, "\t<line x1=\"%d\" x2=\"%d\" y1=\"%d\" y2=\"%d\" stroke-width=\"%d\" stroke=\"#000000\"></line>\n",
+void gen_line(LineCords *l, FILE *f, int is_graph){
+    fprintf(f, "\t<line x1=\"%d\" x2=\"%d\" y1=\"%d\" y2=\"%d\" stroke-width=\"%d\" stroke=\"#%s\"></line>\n",
         l->x1,
         l->x2,
         l->y1,
         l->y2,
-        OUT_STROKE_WIDTH
+        OUT_STROKE_WIDTH,
+        is_graph ? "9900ff" : "000000"
     );
 }
 
@@ -102,7 +103,7 @@ void gen_grid(FILE *f){
         .y1 = OUT_PADDING,
         .y2 = OUT_HEIGHT - OUT_PADDING
     };
-    gen_line(&lc, f);
+    gen_line(&lc, f, 0);
 
     //max axis
     lc.x1 = OUT_PADDING - OUT_STROKE_WIDTH / 2;
@@ -119,6 +120,18 @@ void gen_grid(FILE *f){
 /*
     x axis -> scaling
 */
+void gen_constant(FILE *fo){
+    fprintf(fo, "\n");
+
+    LineCords g = {
+        .x1 = OUT_PADDING,
+        .x2 = OUT_WIDTH - OUT_PADDING,
+        .y1 = OUT_HEIGHT / 2,
+        .y2 = g.y1
+    };
+    gen_line(&g, fo, 1);
+}
+
 void gen_polyline(Props *p, FILE *fi, FILE *fo){
     fprintf(fo, "\n\t<polyline\n\t\tpoints=\"\n");
 
@@ -152,7 +165,7 @@ void gen_chart(Props *p, FILE *fi, FILE *fo){
 
     gen_grid(fo);
     
-    gen_polyline(p, fi, fo);
+    (p->max == p->min) ? gen_constant(fo) : gen_polyline(p, fi, fo);
     
     fprintf(fo, "</svg>\n");
 }
