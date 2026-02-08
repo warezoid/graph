@@ -15,6 +15,9 @@
 #define OUT_PADDING 100
 #define OUT_STROKE_WIDTH 8
 
+//props constants
+#define PROPS_SIZE_MAX 1000
+
 
 
 int int_parse(char *line){
@@ -134,6 +137,12 @@ void gen_constant(FILE *fo){
 
 void gen_polyline(Props *p, FILE *fi, FILE *fo){
     fprintf(fo, "\n\t<polyline\n\t\tpoints=\"\n");
+
+    int scl_size = 1;
+    if(p->size > PROPS_SIZE_MAX){
+        double tmp = (double)(p->size) / (double)(PROPS_SIZE_MAX);
+        scl_size = (tmp - (int)tmp) != 0 ? (int)tmp + 1 : (int)tmp;
+    }
 
     const double pts_spc = (double)(OUT_WIDTH - OUT_PADDING * 2) / (double)(p->size - 1);
     const double y_hgt = (double)(OUT_HEIGHT - OUT_PADDING * 2);

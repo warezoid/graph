@@ -1,0 +1,31 @@
+/*
+
+2026 warezoid.
+this code will fille data.txt with data
+
+*/
+
+#include <stdio.h>
+
+int main(){
+    FILE *f = fopen("data.txt", "wt");
+    const int N = 9999;
+    int x = 1;
+
+    for(int i = 0; i < N; i++){
+        fprintf(f, "%d\n", i);
+
+        /*
+        if(x){
+            fprintf(f, "1\n");
+            x = 0;
+        }
+        else{
+            fprintf(f, "-1\n");
+            x = 1;
+        }
+        */
+    }
+
+    return 0;
+}
