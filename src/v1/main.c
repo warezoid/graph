@@ -135,13 +135,18 @@ void gen_constant(FILE *fo){
     gen_line(&g, fo, 1);
 }
 
+int int_ceil(double num){
+    return (num - (int)num) != 0 ? (int)num + 1 : (int)num;
+}
+
 void gen_polyline(Props *p, FILE *fi, FILE *fo){
     fprintf(fo, "\n\t<polyline\n\t\tpoints=\"\n");
-
+    
     int scl_size = 1;
     if(p->size > PROPS_SIZE_MAX){
         double tmp = (double)(p->size) / (double)(PROPS_SIZE_MAX);
-        scl_size = (tmp - (int)tmp) != 0 ? (int)tmp + 1 : (int)tmp;
+        scl_size = int_ceil(tmp);
+        p->size = int_ceil((double)p->size / (double)scl_size);
     }
 
     const double pts_spc = (double)(OUT_WIDTH - OUT_PADDING * 2) / (double)(p->size - 1);
@@ -149,19 +154,28 @@ void gen_polyline(Props *p, FILE *fi, FILE *fo){
     double prc = 0;
 
     char buf[BUF_SIZE] = {};
-    int num = 0;
+    double num = 0;
 
     unsigned int i = 0;
+    unsigned int j = 0;
     while(fgets(buf, sizeof(buf), fi)){
-        num = int_parse(buf);
+        j++;
 
-        prc = 1.0 - (double)(num - p->min) / (double)(p->max - p->min);
+        num += (double)int_parse(buf);
 
-        fprintf(fo, "\t\t\t%f, %f\n",
-            OUT_PADDING + i * pts_spc,
-            prc * y_hgt + OUT_PADDING
-        );
-        i++;
+        if(j >= scl_size){
+            num /= (double)scl_size;
+            prc = 1.0 - (double)(num - p->min) / (double)(p->max - p->min);
+
+            fprintf(fo, "\t\t\t%f, %f\n",
+                OUT_PADDING + i * pts_spc,
+                prc * y_hgt + OUT_PADDING
+            );
+
+            num = 0;
+            i++;
+            j = 0;
+        }
     }
 
     fprintf(fo, "\t\t\"\n\t\tstroke-width=\"%d\"\n\t\tstroke=\"#9900ff\"\n\t\tfill=\"none\"\n\t/>\n",
