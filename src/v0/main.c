@@ -1,14 +1,3 @@
-/*
-
-    graph: data from input file transform to svg chart
-
-    TODOS:
-        - version 1: make graph generator -> get input data and make chart from it
-            - only simple x and y axis -> min max values (line and point with label)
-        - version 2: simple graph generator with support of decimal values
-        - version 3: richer labels, axis, ...
-*/
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
