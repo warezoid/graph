@@ -14,6 +14,7 @@
 #define OUT_HEIGHT 1080
 #define OUT_PADDING 100
 #define OUT_STROKE_WIDTH 8
+#define OUT_FONT_SIZE 35
 
 //props constants
 #define PROPS_SIZE_MAX 1000
@@ -120,9 +121,6 @@ void gen_grid(FILE *f){
     gen_dashed_line(&lc, f);
 }
 
-/*
-    x axis -> scaling
-*/
 void gen_constant(FILE *fo){
     fprintf(fo, "\n");
 
@@ -141,7 +139,7 @@ int int_ceil(double num){
 
 void gen_polyline(Props *p, FILE *fi, FILE *fo){
     fprintf(fo, "\n\t<polyline\n\t\tpoints=\"\n");
-    
+
     int scl_size = 1;
     if(p->size > PROPS_SIZE_MAX){
         double tmp = (double)(p->size) / (double)(PROPS_SIZE_MAX);
@@ -188,6 +186,15 @@ void gen_chart(Props *p, FILE *fi, FILE *fo){
 
     gen_grid(fo);
     
+    fprintf(fo, "\n\t<text x=\"%d\" y=\"%d\" fill=\"#000000\" style=\"font: bold %dpx sans-serif\">[min: %d | max: %d | size: %d]</text>\n",
+        OUT_PADDING,
+        OUT_PADDING - (OUT_FONT_SIZE / 2),
+        OUT_FONT_SIZE,
+        p->min,
+        p->max,
+        p->size
+    );
+
     (p->max == p->min) ? gen_constant(fo) : gen_polyline(p, fi, fo);
     
     fprintf(fo, "</svg>\n");

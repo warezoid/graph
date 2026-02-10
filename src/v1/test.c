@@ -10,22 +10,11 @@ this code will fille data.txt with data
 
 int main(){
     FILE *f = fopen("data.txt", "wt");
-    const int N = 2000;
+    const int N = 321;
     int x = 1;
 
     for(int i = 0; i < N; i++){
-        fprintf(f, "%d\n", rand() % 100);
-
-        /*
-        if(x){
-            fprintf(f, "1\n");
-            x = 0;
-        }
-        else{
-            fprintf(f, "-1\n");
-            x = 1;
-        }
-        */
+        fprintf(f, "%d\n", rand() % 123);
     }
 
     return 0;
