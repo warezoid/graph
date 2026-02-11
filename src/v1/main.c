@@ -1,27 +1,42 @@
 #include <stdio.h>
-
 #include <stdlib.h>
 
-//program constants
+
+
 #define MAX_INT 2147483647
 #define MIN_INT -2147483648
 
-//string constants
 #define BUF_SIZE 21
 
-//output constants
 #define OUT_WIDTH 1920
 #define OUT_HEIGHT 1080
 #define OUT_PADDING 100
 #define OUT_STROKE_WIDTH 8
 #define OUT_FONT_SIZE 35
 
-//props constants
 #define PROPS_SIZE_MAX 1000
 
 
 
-int int_parse(char *line){
+typedef struct{
+    unsigned int size;
+    int min;
+    int max;
+} Props;
+
+typedef struct{
+    unsigned int x1;
+    unsigned int x2;
+    unsigned int y1;
+    unsigned int y2;
+} LineCords;
+
+
+
+static int int_ceil(double num){
+    return (num - (int)num) != 0 ? (int)num + 1 : (int)num;
+}
+static int int_parse(char *line){
     int sign = 1;
     int num = 0;
 
@@ -43,13 +58,7 @@ int int_parse(char *line){
     return num * sign;
 }
 
-typedef struct{
-    unsigned int size;
-    int min;
-    int max;
-} Props;
-
-Props init_props(FILE *f){
+static inline Props init_props(FILE *f){
     Props res = {
         .size = 0,
         .min = MAX_INT,
@@ -69,16 +78,7 @@ Props init_props(FILE *f){
     return res;
 }
 
-
-
-typedef struct{
-    unsigned int x1;
-    unsigned int x2;
-    unsigned int y1;
-    unsigned int y2;
-} LineCords;
-
-void gen_line(LineCords *l, FILE *f, int is_graph){
+static void gen_line(LineCords *l, FILE *f, int is_graph){
     fprintf(f, "\t<line x1=\"%d\" x2=\"%d\" y1=\"%d\" y2=\"%d\" stroke-width=\"%d\" stroke=\"#%s\"></line>\n",
         l->x1,
         l->x2,
@@ -88,8 +88,7 @@ void gen_line(LineCords *l, FILE *f, int is_graph){
         is_graph ? "9900ff" : "000000"
     );
 }
-
-void gen_dashed_line(LineCords *l, FILE *f){
+static void gen_dashed_line(LineCords *l, FILE *f){
     fprintf(f, "\t<line x1=\"%d\" x2=\"%d\" y1=\"%d\" y2=\"%d\" stroke-width=\"%d\" stroke-dasharray=\"20, 20\" stroke=\"#000000\"></line>\n",
         l->x1,
         l->x2,
@@ -98,9 +97,7 @@ void gen_dashed_line(LineCords *l, FILE *f){
         OUT_STROKE_WIDTH
     );
 }
-
-void gen_grid(FILE *f){
-    //y axis
+static inline void gen_grid(FILE *f){
     LineCords lc = {
         .x1 = OUT_PADDING,
         .x2 = OUT_PADDING,
@@ -109,19 +106,17 @@ void gen_grid(FILE *f){
     };
     gen_line(&lc, f, 0);
 
-    //max axis
     lc.x1 = OUT_PADDING - OUT_STROKE_WIDTH / 2;
     lc.x2 = OUT_WIDTH - OUT_PADDING;
     lc.y2 = OUT_PADDING;
     gen_dashed_line(&lc, f);
 
-    //min axis 
     lc.y1 = OUT_HEIGHT - OUT_PADDING;
     lc.y2 = lc.y1;
     gen_dashed_line(&lc, f);
 }
 
-void gen_constant(FILE *fo){
+static inline void gen_constant(FILE *fo){
     fprintf(fo, "\n");
 
     LineCords g = {
@@ -132,12 +127,7 @@ void gen_constant(FILE *fo){
     };
     gen_line(&g, fo, 1);
 }
-
-int int_ceil(double num){
-    return (num - (int)num) != 0 ? (int)num + 1 : (int)num;
-}
-
-void gen_polyline(Props *p, FILE *fi, FILE *fo){
+static inline void gen_polyline(Props *p, FILE *fi, FILE *fo){
     fprintf(fo, "\n\t<polyline\n\t\tpoints=\"\n");
 
     int scl_size = 1;
@@ -181,7 +171,7 @@ void gen_polyline(Props *p, FILE *fi, FILE *fo){
     );
 }
 
-void gen_chart(Props *p, FILE *fi, FILE *fo){
+static inline void gen_chart(Props *p, FILE *fi, FILE *fo){
     fprintf(fo, "<svg width=\"%d\" height=\"%d\">\n", OUT_WIDTH, OUT_HEIGHT);
 
     gen_grid(fo);
@@ -200,19 +190,21 @@ void gen_chart(Props *p, FILE *fi, FILE *fo){
     fprintf(fo, "</svg>\n");
 }
 
-
-
-int main(){
-    FILE *f_in = fopen("data.txt", "rt");
-    if(f_in == NULL) return 1;
+void graphs(char *input_file){
+    FILE *f_in = fopen(input_file, "rt");
+    if(f_in == NULL) exit(1);
 
     Props p = init_props(f_in);
-    if(p.size < 2) return 1;
+    if(p.size < 2) exit(1);
 
-    FILE *f_out = fopen("out.svg", "wt");
-    if(f_out == NULL) return 1;
+    FILE *f_out = fopen("graph.svg", "wt");
+    if(f_out == NULL) exit(1);
 
     gen_chart(&p, f_in, f_out);
+}
+
+int main(){
+    graphs("data.txt");
 
     return 0;
 }
