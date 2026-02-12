@@ -1,5 +1,5 @@
-#ifndef GRAPHS_H
-#define GRAPHS_H
+#ifndef GRAPH_H
+#define GRAPH_H
 
 
 
@@ -51,7 +51,7 @@ void graphs(char *input_file);
 
 
 
-#if defined(GRAPHS_IMPLEMENTATION)
+#if defined(GRAPH_IMPLEMENTATION)
 
 
 static int int_ceil(double num){
@@ -143,15 +143,17 @@ static inline void gen_constant(FILE *fo){
     LineCords g = {
         .x1 = OUT_PADDING,
         .x2 = OUT_WIDTH - OUT_PADDING,
-        .y1 = OUT_HEIGHT / 2,
-        .y2 = g.y1
+        .y1 = OUT_HEIGHT >> 1,
+        .y2 = 0
     };
+    g.y2 = g.y1;
+
     gen_line(&g, fo, 1);
 }
 static inline void gen_polyline(Props *p, FILE *fi, FILE *fo){
     fprintf(fo, "\n\t<polyline\n\t\tpoints=\"\n");
 
-    int scl_size = 1;
+    unsigned int scl_size = 1;
     if(p->size > PROPS_SIZE_MAX){
         double tmp = (double)(p->size) / (double)(PROPS_SIZE_MAX);
         scl_size = int_ceil(tmp);
@@ -211,7 +213,7 @@ static inline void gen_chart(Props *p, FILE *fi, FILE *fo){
     fprintf(fo, "</svg>\n");
 }
 
-void graphs(char *input_file){
+void graph(char *input_file){
     FILE *f_in = fopen(input_file, "rt");
     if(f_in == NULL) exit(1);
 
@@ -222,6 +224,11 @@ void graphs(char *input_file){
     if(f_out == NULL) exit(1);
 
     gen_chart(&p, f_in, f_out);
+
+    printf("%d\n", 10 >> 1);
+
+    fclose(f_in);
+    fclose(f_out);
 }
 
 

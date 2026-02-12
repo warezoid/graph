@@ -1,7 +1,7 @@
-#define GRAPHS_IMPLEMENTATION
-#include "graphs.h"
+#define GRAPH_IMPLEMENTATION
+#include "graph.h"
 
 int main(){
-    graphs("data.txt");
+    graph("data.txt");
     return 0;
 }
