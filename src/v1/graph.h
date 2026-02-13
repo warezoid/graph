@@ -4,7 +4,6 @@
 
 
 #include <stdio.h>
-#include <stdlib.h>
 
 
 
@@ -24,6 +23,7 @@
 
 
 typedef struct{
+    unsigned int status;
     unsigned int size;
     int min;
     int max;
@@ -39,7 +39,7 @@ typedef struct{
 
 
 static int int_ceil(double num);
-static int int_parse(char *line);
+static int int_parse(char *line, unsigned int *sts);
 static inline Props init_props(FILE *f);
 static void gen_line(LineCords *l, FILE *f, int is_graph);
 static void gen_dashed_line(LineCords *l, FILE *f);
@@ -57,7 +57,7 @@ void graphs(char *input_file);
 static int int_ceil(double num){
     return (num - (int)num) != 0 ? (int)num + 1 : (int)num;
 }
-static int int_parse(char *line){
+static int int_parse(char *line, int unsigned *sts){
     int sign = 1;
     int num = 0;
 
@@ -72,8 +72,9 @@ static int int_parse(char *line){
             continue;
         }
 
-        printf("int_parse() error: contains invalid chars!\n");
-        exit(1);
+        printf("graph error: input file contains invalid chars!\n");
+        *sts = 1;
+        return 0;
     }
 
     return num * sign;
@@ -81,6 +82,7 @@ static int int_parse(char *line){
 
 static inline Props init_props(FILE *f){
     Props res = {
+        .status = 0,
         .size = 0,
         .min = MAX_INT,
         .max = MIN_INT
@@ -90,7 +92,8 @@ static inline Props init_props(FILE *f){
     int num = 0;
     while(fgets(buf, sizeof(buf), f)){
         res.size++;
-        num = int_parse(buf);
+        num = int_parse(buf, &(res.status));
+        if(res.status) return res;
         if(num > res.max) res.max = num;
         if(num < res.min) res.min = num;
     }
@@ -172,7 +175,7 @@ static inline void gen_polyline(Props *p, FILE *fi, FILE *fo){
     while(fgets(buf, sizeof(buf), fi)){
         j++;
 
-        num += (double)int_parse(buf);
+        num += (double)int_parse(buf, NULL);
 
         if(j >= scl_size){
             num /= (double)scl_size;
@@ -213,22 +216,37 @@ static inline void gen_chart(Props *p, FILE *fi, FILE *fo){
     fprintf(fo, "</svg>\n");
 }
 
-void graph(char *input_file){
+int graph(char *input_file){
     FILE *f_in = fopen(input_file, "rt");
-    if(f_in == NULL) exit(1);
+    if(f_in == NULL){
+        printf("graph error: can't open input file!\n");
+        return 1;
+    }
 
     Props p = init_props(f_in);
-    if(p.size < 2) exit(1);
+    if(p.status){
+        fclose(f_in);
+        return 1;        
+    }
+
+    if(p.size < 2){
+        printf("graph error: can't plot single point chart!\n");
+        fclose(f_in);
+        return 1;
+    }
 
     FILE *f_out = fopen("graph.svg", "wt");
-    if(f_out == NULL) exit(1);
+    if(f_out == NULL){
+        printf("graph error: can't open/create output file!\n");
+        fclose(f_in);
+        return 1;
+    }
 
     gen_chart(&p, f_in, f_out);
 
-    printf("%d\n", 10 >> 1);
-
     fclose(f_in);
     fclose(f_out);
+    return 0;
 }
 
 

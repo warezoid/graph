@@ -17,6 +17,8 @@ After include you just have to call graphs() function. It accept one parameter, 
 graphs("data.txt"); //will try to find data.txt file
 ```
 
+Call of graphs() return INT value. If error occure, Graphs will print error message to stdio and return 1. Otherwise it will return 0.
+
 ## Input file format
 Graph accepts text file in folowing format:
 
@@ -33,13 +35,13 @@ Basicly it accepts INTs, which are separated by new line.
 ## Roadmap
 - v1.1 | [11. Feb 2026]: simple version of graph (accepts only INTs, include bugs, simple graph grid)
     - v1.1.1 | [12. Feb 2026]: small bugs fix (fclose added, LineCords UB)
+    - v1.1.2 | [13. Feb 2026]: exit(1) was replaced (stdlib was removed)
 
 - version 2: simple graph generator with support of decimal values
 - version 3: richer labels, axis, ...
 
 ## Well known bugs
 - int_parse() errors
-- replace exit(1) with return
 
 
 
