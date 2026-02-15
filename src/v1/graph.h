@@ -10,7 +10,7 @@
 #define MAX_INT 2147483647
 #define MIN_INT -2147483648
 
-#define BUF_SIZE 21
+#define BUF_SIZE 11 //solve overflow bug
 
 #define OUT_WIDTH 1920
 #define OUT_HEIGHT 1080
@@ -57,27 +57,36 @@ void graphs(char *input_file);
 static int int_ceil(double num){
     return (num - (int)num) != 0 ? (int)num + 1 : (int)num;
 }
-static int int_parse(char *line, int unsigned *sts){
+static int int_parse(char *line, int unsigned *sts){    
+    if(line[0] == 0 || line[0] == '\n') goto error;
+    
+    int i = 0;
     int sign = 1;
+    if(line[0] == '-'){
+        sign = -1;
+        i++;
+    }
+    
     int num = 0;
-
-    for(int i = 0; line[i] != 0 && line[i] != '\n'; i++){
+    while(i < BUF_SIZE){
         if(line[i] >= '0' && line[i] <= '9'){
             num = (num * 10) + (line[i] - '0');
+            i++;
             continue;
         }
 
-        if(line[i] == '-' && sign == 1){
-            sign = -1;
-            continue;
+        if(line[i] == 0 || line[i] == '\n'){
+            if(sign == -1 && i < 2) goto error;
+            return num * sign;
         }
 
+        goto error;
+    }
+
+    error:
         printf("graph error: input file contains invalid chars!\n");
         *sts = 1;
         return 0;
-    }
-
-    return num * sign;
 }
 
 static inline Props init_props(FILE *f){
@@ -93,6 +102,8 @@ static inline Props init_props(FILE *f){
     while(fgets(buf, sizeof(buf), f)){
         res.size++;
         num = int_parse(buf, &(res.status));
+        printf("num: %d\n", num);
+
         if(res.status) return res;
         if(num > res.max) res.max = num;
         if(num < res.min) res.min = num;
@@ -230,7 +241,7 @@ int graph(char *input_file){
     }
 
     if(p.size < 2){
-        printf("graph error: can't plot single point chart!\n");
+        (p.size == 0) ? printf("graph error: input file is empty!\n") : printf("graph error: can't plot single point chart!\n");
         fclose(f_in);
         return 1;
     }
