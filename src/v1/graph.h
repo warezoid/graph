@@ -4,13 +4,14 @@
 
 
 #include <stdio.h>
+#include <stdint.h>
 
 
 
 #define MAX_INT 2147483647
 #define MIN_INT -2147483648
 
-#define BUF_SIZE 11 //solve overflow bug
+#define BUF_SIZE 13
 
 #define OUT_WIDTH 1920
 #define OUT_HEIGHT 1080
@@ -57,17 +58,15 @@ void graphs(char *input_file);
 static int int_ceil(double num){
     return (num - (int)num) != 0 ? (int)num + 1 : (int)num;
 }
-static int int_parse(char *line, int unsigned *sts){    
-    if(line[0] == 0 || line[0] == '\n') goto error;
-    
+static int int_parse(char *line, int unsigned *sts){
     int i = 0;
     int sign = 1;
     if(line[0] == '-'){
         sign = -1;
         i++;
     }
-    
-    int num = 0;
+
+    unsigned int num = 0;
     while(i < BUF_SIZE){
         if(line[i] >= '0' && line[i] <= '9'){
             num = (num * 10) + (line[i] - '0');
@@ -75,8 +74,10 @@ static int int_parse(char *line, int unsigned *sts){
             continue;
         }
 
-        if(line[i] == 0 || line[i] == '\n'){
+        if(line[i] == '\n'){
             if(sign == -1 && i < 2) goto error;
+            if(sign == 1 && i > 9) goto error;
+            if(num > MAX_INT || num < MIN_INT) goto error;
             return num * sign;
         }
 
@@ -84,7 +85,7 @@ static int int_parse(char *line, int unsigned *sts){
     }
 
     error:
-        printf("graph error: input file contains invalid chars!\n");
+        printf("graph error: input file contains invalid input (overflow or invalid chars)!\n");
         *sts = 1;
         return 0;
 }
@@ -102,9 +103,8 @@ static inline Props init_props(FILE *f){
     while(fgets(buf, sizeof(buf), f)){
         res.size++;
         num = int_parse(buf, &(res.status));
-        printf("num: %d\n", num);
-
         if(res.status) return res;
+        printf("num: %d\n", num);
         if(num > res.max) res.max = num;
         if(num < res.min) res.min = num;
     }
@@ -239,7 +239,7 @@ int graph(char *input_file){
         fclose(f_in);
         return 1;        
     }
-
+/*
     if(p.size < 2){
         (p.size == 0) ? printf("graph error: input file is empty!\n") : printf("graph error: can't plot single point chart!\n");
         fclose(f_in);
@@ -254,9 +254,9 @@ int graph(char *input_file){
     }
 
     gen_chart(&p, f_in, f_out);
-
+*/
     fclose(f_in);
-    fclose(f_out);
+//    fclose(f_out);
     return 0;
 }
 
