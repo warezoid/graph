@@ -58,6 +58,8 @@ static int int_ceil(double num){
     return (num - (int)num) != 0 ? (int)num + 1 : (int)num;
 }
 static int int_parse(char *line, int unsigned *sts){
+    if(line[0] == 0 || line[0] == '\n') goto error;
+
     int i = 0;
     int sign = 1;
     if(line[0] == '-'){
@@ -74,10 +76,12 @@ static int int_parse(char *line, int unsigned *sts){
         }
 
         if(line[i] == '\n'){
-            if(i == 0) goto error;
-            if(sign == -1 && i < 2) goto error;
-            if(sign == 1 && i > 9) goto error;
-            if(num > MAX_INT || num < MIN_INT) goto error;
+            if(sign == 1){
+                if(i > 10 || num > MAX_INT) goto error;
+                return num;
+            }
+
+            if(i < 2 || (num - 1) > MAX_INT) goto error;
             return num * sign;
         }
 
@@ -254,8 +258,8 @@ int graph(char *input_file){
 
     gen_chart(&p, f_in, f_out);
 
-    fclose(f_in);
     fclose(f_out);
+    fclose(f_in);
     return 0;
 }
 
