@@ -4,7 +4,6 @@
 
 
 #include <stdio.h>
-#include <stdint.h>
 
 
 
@@ -75,6 +74,7 @@ static int int_parse(char *line, int unsigned *sts){
         }
 
         if(line[i] == '\n'){
+            if(i == 0) goto error;
             if(sign == -1 && i < 2) goto error;
             if(sign == 1 && i > 9) goto error;
             if(num > MAX_INT || num < MIN_INT) goto error;
@@ -104,7 +104,6 @@ static inline Props init_props(FILE *f){
         res.size++;
         num = int_parse(buf, &(res.status));
         if(res.status) return res;
-        printf("num: %d\n", num);
         if(num > res.max) res.max = num;
         if(num < res.min) res.min = num;
     }
@@ -239,7 +238,7 @@ int graph(char *input_file){
         fclose(f_in);
         return 1;        
     }
-/*
+
     if(p.size < 2){
         (p.size == 0) ? printf("graph error: input file is empty!\n") : printf("graph error: can't plot single point chart!\n");
         fclose(f_in);
@@ -254,9 +253,9 @@ int graph(char *input_file){
     }
 
     gen_chart(&p, f_in, f_out);
-*/
+
     fclose(f_in);
-//    fclose(f_out);
+    fclose(f_out);
     return 0;
 }
 
