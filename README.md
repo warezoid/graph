@@ -28,20 +28,22 @@ Graph accepts text file in folowing format:
 1
 -5
 5
+
 ```
 
-Basicly it accepts INTs, which are separated by new line.
+Basicly it accepts INTs, which are separated by new line. INTs must be in folowing interval <-2147483648; 2147483647>, otherwise overflow error will occure!
 
 ## Roadmap
 - v1.1 | [11. Feb 2026]: simple version of graph (accepts only INTs, include bugs, simple graph grid)
     - v1.1.1 | [12. Feb 2026]: small bugs fix (fclose added, LineCords UB)
     - v1.1.2 | [13. Feb 2026]: exit(1) was replaced (stdlib was removed)
+    - v1.1.5 | [17. Feb 2026]: int_parse() was rewriten. INT min limit error was found.
 
 - version 2: simple graph generator with support of decimal values
 - version 3: richer labels, axis, ...
 
 ## Well known bugs
-- int_parse() errors
+- INT limit error: if -2147483648 occure in input data Graphs fails to output visible chart.
 
 
 
