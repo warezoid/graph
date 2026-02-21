@@ -167,7 +167,7 @@ static inline void gen_constant(FILE *fo){
 
     gen_line(&g, fo, 1);
 }
-//if min and max limit is included program will fail!
+
 static inline void gen_polyline(Props *p, FILE *fi, FILE *fo){
     fprintf(fo, "\n\t<polyline\n\t\tpoints=\"\n");
 
@@ -194,8 +194,7 @@ static inline void gen_polyline(Props *p, FILE *fi, FILE *fo){
         
         if(j >= scl_size){
             num /= (double)scl_size;
-            prc = 1.0 - (double)(num - p->min) / (double)(p->max - p->min);
-            printf("num: %f | %f\n", num, prc);
+            prc = 1.0 - ((double)num - (double)p->min) / ((double)p->max - (double)p->min);
 
             fprintf(fo, "\t\t\t%f, %f\n",
                 OUT_PADDING + i * pts_spc,

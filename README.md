@@ -38,12 +38,13 @@ Basicly it accepts INTs, which are separated by new line. INTs must be in folowi
     - v1.1.1 | [12. Feb 2026]: small bugs fix (fclose added, LineCords UB)
     - v1.1.2 | [13. Feb 2026]: exit(1) was replaced (stdlib was removed)
     - v1.1.5 | [17. Feb 2026]: int_parse() was rewriten. INT min limit error was found.
+    - v1.1.6 | [21. Feb 2026]: INT limit error was solved.
 
 - version 2: simple graph generator with support of decimal values
 - version 3: richer labels, axis, ...
 
 ## Well known bugs
-- INT limit error: if -2147483648 occure in input data Graphs fails to output visible chart.
+- No bugs founded.
 
 
 
