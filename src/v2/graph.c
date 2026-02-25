@@ -1,8 +1,3 @@
-#ifndef GRAPH_H
-#define GRAPH_H
-
-
-
 #include <stdio.h>
 
 
@@ -21,7 +16,7 @@
 #define PROPS_SIZE_MAX 1000
 
 
-
+/*
 typedef struct{
     unsigned int status;
     unsigned int size;
@@ -35,24 +30,6 @@ typedef struct{
     unsigned int y1;
     unsigned int y2;
 } LineCords;
-
-
-
-static int int_ceil(double num);
-static int int_parse(char *line, unsigned int *sts);
-static inline Props init_props(FILE *f);
-static void gen_line(LineCords *l, FILE *f, int is_graph);
-static void gen_dashed_line(LineCords *l, FILE *f);
-static inline void gen_grid(FILE *f);
-static inline void gen_constant(FILE *fo);
-static inline void gen_polyline(Props *p, FILE *fi, FILE *fo);
-static inline void gen_chart(Props *p, FILE *fi, FILE *fo);
-void graphs(char *input_file);
-
-
-
-#if defined(GRAPH_IMPLEMENTATION)
-
 
 static int int_ceil(double num){
     return (num - (int)num) != 0 ? (int)num + 1 : (int)num;
@@ -267,7 +244,35 @@ int graph(char *input_file){
     fclose(f_in);
     return 0;
 }
+*/
 
+/*
 
-#endif //GRAPHS_IMPLEMENTATION
-#endif //GRAPHS_H
+- use float or double????
+- use long instead of int in int_parse?? -> NO! in case of big numbers user have to specified double/float parse
+
+*/
+
+float float_parse(char *line, int unsigned *sts){
+    if(line[0] == 0 || line[0] == '\n') goto error;
+
+    int i = 0;
+    float sign = 1;
+    if(line[0] == '-'){
+        sign = -1;
+        i++;
+    }
+
+    error:
+        printf("graph error: input file contains invalid input (overflow or invalid chars)!\n");
+        *sts = 1;
+        return 0;
+}
+
+int main(){
+    //graph("data.txt");
+
+    int sts = 0;
+    float_parse("123.0", &sts);
+    return 0;
+}

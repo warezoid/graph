@@ -1,0 +1,20 @@
+<svg width="1920" height="1080">
+	<line x1="100" x2="100" y1="100" y2="980" stroke-width="8" stroke="#000000"></line>
+	<line x1="96" x2="1820" y1="100" y2="100" stroke-width="8" stroke-dasharray="20, 20" stroke="#000000"></line>
+	<line x1="96" x2="1820" y1="980" y2="980" stroke-width="8" stroke-dasharray="20, 20" stroke="#000000"></line>
+
+	<text x="100" y="83" fill="#000000" style="font: bold 35px sans-serif">[min: 1 | max: 5 | size: 5]</text>
+
+	<polyline
+		points="
+			100.000000, 980.000000
+			530.000000, 760.000000
+			960.000000, 540.000000
+			1390.000000, 320.000000
+			1820.000000, 100.000000
+		"
+		stroke-width="8"
+		stroke="#9900ff"
+		fill="none"
+	/>
+</svg>
